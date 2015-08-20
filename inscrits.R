@@ -39,13 +39,21 @@ png("evolutionIngesParSecteurs.png", width = 800, height = 480, units = "px")
 ggplot(ingesFrance,aes(x=rentree:code_secteur,y=nb_inge))+
   geom_bar(stat="identity",aes(fill=regroupement,group=secteur,color=secteur)) + 
   scale_x_discrete(labels=xlab)+
-  geom_smooth(data=totaux,method="lm",aes(x=rentree,y=totaux,color=secteur,group=secteur))+
-  geom_point(data=totaux,method="lm",aes(x=rentree,y=totaux,color=secteur,group=secteur))+
+ # geom_smooth(data=totaux,method="lm",aes(x=rentree,y=totaux,color=secteur,group=secteur))+
+  geom_point(data=totaux,method="lm",aes(x=rentree,y=totaux,color=secteur,group=secteur),position=position_dodge(width=10))+
   theme(axis.text.x = element_text(angle = 90, hjust = 0),legend.title=element_text(size=12),legend.text=element_text(size=11))+
-  labs(title="Evolution des inscriptions en écoles d'ingénieurs par secteur",y="Nombre d'élèves ingénieurs",x="année universitaire")
+  labs(title="Evolution des inscriptions en écoles d'ingénieurs par secteur",y="Nombre d'élèves ingénieurs",x="rentrée universitaire")
 dev.off()
 
-
+#graphe alternatif avec largeurs variées
+png("evolutionInges.png", width = 800, height = 480, units = "px") 
+ggplot(ingesFrance,aes(x=rentree,y=nb_inge,color=secteur))+
+  geom_bar(data=ingesFrance[ingesFrance$code_secteur=="PR",],stat="identity",aes(fill=interaction(secteur,regroupement)))+
+  geom_bar(data=ingesFrance[ingesFrance$code_secteur=="PU",],stat="identity",width=.5,aes(fill=interaction(secteur,regroupement)))+
+  geom_smooth(data=totaux,method="lm",aes(x=rentree,y=totaux,color=secteur,group=secteur))+
+  geom_point(data=totaux,method="lm",aes(x=rentree,y=totaux,color=secteur,group=secteur))+
+  labs(title="Evolution des inscriptions en écoles d'ingénieurs par secteur",y="Nombre d'élèves ingénieurs",x="rentrée universitaire")
+dev.off()
 #calcul pour toutes les filières
 inscritsFrance <- inscrits %>% filter(code_geo=="Pays",code_regroupement!="TOTAL")
 totaux <- inscritsFrance %>% group_by(rentree,secteur=nom_secteur) %>%summarise(totaux=sum(total_inscrits))
